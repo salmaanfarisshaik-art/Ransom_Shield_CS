@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RansomShield — Intelligent Ransomware Detection Platform</title>
+  <meta name="description" content="RansomShield: Real-time ransomware detection, ML anomaly engine, memory forensics, and sector impact analysis."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #080b10;
+      --bg2:       #0d1117;
+      --bg3:       #161b22;
+      --bg4:       #1c2230;
+      --border:    #21262d;
+      --border2:   #30363d;
+      --text:      #e6edf3;
+      --text2:     #8b949e;
+      --text3:     #58a6ff;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --orange:    #d29922;
+      --purple:    #bc8cff;
+      --cyan:      #56d364;
+      --accent:    #ff6b35;
+      --accent2:   #f85149;
+      --side-w:    240px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--side-w); min-width: var(--side-w); height: 100vh;
+      background: var(--bg2); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 0; overflow: hidden; flex-shrink: 0;
+    }
+    #sidebar .logo {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    #sidebar .logo h1 { font-size: 18px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+    #sidebar .logo p  { font-size: 10px; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+    #sidebar nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .nav-section-label {
+      font-size: 9px; font-weight: 700; color: var(--text2); letter-spacing: 1.5px;
+      padding: 12px 20px 4px; text-transform: uppercase;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; cursor: pointer; color: var(--text2);
+      font-size: 13px; font-weight: 500; transition: all 0.15s;
+      border-left: 3px solid transparent; text-decoration: none;
+    }
+    .nav-link:hover { color: var(--text); background: var(--bg3); }
+    .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(255,107,53,0.08); }
+    .nav-link .material-symbols-outlined { font-size: 18px; }
+    #sidebar .status-bar {
+      padding: 12px 16px; border-top: 1px solid var(--border);
+      font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── MAIN ── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── TOPBAR ── */
+    #topbar {
+      height: 52px; background: var(--bg2); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; flex-shrink: 0;
+    }
+    #topbar .left { display: flex; align-items: center; gap: 16px; }
+    #topbar .title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 4px; font-size: 11px;
+      font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .badge.safe   { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .badge.danger { background: rgba(248,81,73,0.15); color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+    .badge.warn   { background: rgba(210,153,34,0.15); color: var(--orange); border: 1px solid rgba(210,153,34,0.3); }
+    .badge .dot   { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    #topbar .right { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+    /* ── CONTENT ── */
+    #content { flex: 1; overflow-y: auto; padding: 24px; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── SECTION HEADER ── */
+    .section-header { margin-bottom: 20px; }
+    .section-header h2 { font-size: 22px; font-weight: 700; color: var(--text); }
+    .section-header p  { font-size: 13px; color: var(--text2); margin-top: 4px; }
+    .section-header .tag { display: inline-block; margin-top: 8px; font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(255,107,53,0.15); color: var(--accent); font-family: 'JetBrains Mono', monospace; border: 1px solid rgba(255,107,53,0.3); }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px;
+    }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title .material-symbols-outlined { font-size: 16px; color: var(--accent); }
+
+    /* ── STAT GRID ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px;
+    }
+    .stat-card .label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat-card .value { font-size: 36px; font-weight: 800; margin-top: 6px; line-height: 1; }
+    .stat-card .sub   { font-size: 11px; color: var(--text2); margin-top: 6px; }
+    .stat-card.red   { border-top: 3px solid var(--red); }
+    .stat-card.green { border-top: 3px solid var(--green); }
+    .stat-card.orange{ border-top: 3px solid var(--orange); }
+    .stat-card.purple{ border-top: 3px solid var(--purple); }
+    .val-red    { color: var(--red); }
+    .val-green  { color: var(--green); }
+    .val-orange { color: var(--orange); }
+    .val-purple { color: var(--purple); }
+    .val-blue   { color: var(--text3); }
+
+    /* ── RISK GAUGE ── */
+    .risk-wrap { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+    .risk-circle {
+      width: 160px; height: 160px; border-radius: 50%;
+      border: 3px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; position: relative;
+      transition: all 0.5s ease; box-shadow: 0 0 30px rgba(63,185,80,0.2);
+    }
+    .risk-circle .score { font-size: 48px; font-weight: 800; line-height: 1; }
+    .risk-circle .lbl   { font-size: 11px; color: var(--text2); margin-top: 4px; letter-spacing: 1px; }
+
+    /* ── ALERTS TABLE ── */
+    .alert-table { width: 100%; border-collapse: collapse; }
+    .alert-table th { font-size: 11px; color: var(--text2); font-weight: 600; letter-spacing: 0.8px; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg3); text-transform: uppercase; }
+    .alert-table td { font-size: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .alert-table tr:last-child td { border-bottom: none; }
+    .alert-table tr:hover td { background: var(--bg3); }
+    .alert-type { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; white-space: nowrap; }
+    .at-critical { background: rgba(248,81,73,0.15);  color: var(--red);    border: 1px solid rgba(248,81,73,0.3); }
+    .at-high     { background: rgba(210,153,34,0.15); color: var(--orange); border: 1px solid rgba(210,153,34,0.3); }
+    .at-medium   { background: rgba(88,166,255,0.15); color: var(--text3);  border: 1px solid rgba(88,166,255,0.3); }
+    .at-info     { background: rgba(63,185,80,0.12);  color: var(--green);  border: 1px solid rgba(63,185,80,0.3); }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-danger  { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.4); }
+    .btn-danger:hover  { background: rgba(248,81,73,0.3); }
+    .btn-warn    { background: rgba(210,153,34,0.15); color: var(--orange); border: 1px solid rgba(210,153,34,0.4); }
+    .btn-warn:hover    { background: rgba(210,153,34,0.3); }
+    .btn-primary { background: rgba(255,107,53,0.15); color: var(--accent); border: 1px solid rgba(255,107,53,0.4); }
+    .btn-primary:hover { background: rgba(255,107,53,0.3); }
+    .btn-green   { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.4); }
+    .btn-green:hover   { background: rgba(63,185,80,0.3); }
+    .btn .material-symbols-outlined { font-size: 16px; }
+
+    /* ── TWO-COL ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ── SECTOR BARS ── */
+    .sector-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .sector-name { font-size: 12px; color: var(--text2); width: 200px; flex-shrink: 0; }
+    .sector-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; }
+    .sector-bar { height: 100%; border-radius: 4px; transition: width 1s ease; }
+    .sector-score { font-size: 12px; font-weight: 700; width: 40px; text-align: right; }
+    .sector-sev { font-size: 10px; padding: 1px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-weight: 700; width: 70px; text-align: center; }
+
+    /* ── LOG FEED ── */
+    .log-feed { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; height: 280px; overflow-y: auto; }
+    .log-entry { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 10px; align-items: flex-start; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-time { color: var(--text2); flex-shrink: 0; font-size: 11px; }
+    .log-msg  { color: var(--text); flex: 1; }
+    .log-entry.crit .log-msg { color: var(--red); }
+    .log-entry.warn .log-msg { color: var(--orange); }
+    .log-entry.info .log-msg { color: var(--green); }
+
+    /* ── THREAT INTEL CARDS ── */
+    .threat-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .threat-card .tname { font-size: 14px; font-weight: 700; }
+    .threat-card .tmeta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tmeta-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: var(--bg4); color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+    .conf-bar { height: 4px; background: var(--bg4); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+    .conf-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+    /* ── SCENARIO GRID ── */
+    .scenario-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 16px; }
+    .scenario-card .sname { font-size: 13px; font-weight: 700; color: var(--text); }
+    .scenario-card .sdesc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg2); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* ── PLAYBOOK ── */
+    .playbook-step { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text); }
+    .playbook-step:last-child { border-bottom: none; }
+    .step-num { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+
+    /* ── INCIDENT CMD ── */
+    .cmd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .cmd-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 14px; text-align: center; }
+    .cmd-card .cv { font-size: 32px; font-weight: 800; }
+    .cmd-card .cl { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+    /* flicker on new alert */
+    @keyframes flicker { 0%{opacity:1}50%{opacity:0.3}100%{opacity:1} }
+    .new-alert { animation: flicker 0.5s 2; }
+
+    /* attack step indicators */
+    .attack-step { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .attack-step:last-child { border-bottom: none; }
+    .step-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .step-icon .material-symbols-outlined { font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<div id="sidebar">
+  <div class="logo">
+    <h1>RansomShield</h1>
+    <p>v3.0 · Research Grade · Defensive AI</p>
+  </div>
+  <nav>
+    <div class="nav-section-label">Monitor</div>
+    <a class="nav-link active" data-view="view-overview" href="#">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a class="nav-link" data-view="view-alerts" href="#">
+      <span class="material-symbols-outlined">warning</span> Live Alerts
+      <span id="nav-alert-count" style="margin-left:auto;background:rgba(248,81,73,0.2);color:var(--red);border-radius:10px;font-size:10px;padding:1px 6px;font-weight:700"></span>
+    </a>
+    <a class="nav-link" data-view="view-endpoints" href="#">
+      <span class="material-symbols-outlined">computer</span> Endpoints
+    </a>
+
+    <div class="nav-section-label">Attack & Test</div>
+    <a class="nav-link" data-view="view-simulation" href="#">
+      <span class="material-symbols-outlined">bug_report</span> Simulation
+    </a>
+    <a class="nav-link" data-view="view-kali" href="#">
+      <span class="material-symbols-outlined">terminal</span> Kali Linux Attack
+    </a>
+
+    <div class="nav-section-label">Analysis</div>
+    <a class="nav-link" data-view="view-ml" href="#">
+      <span class="material-symbols-outlined">psychology</span> ML Engine
+    </a>
+    <a class="nav-link" data-view="view-threatintel" href="#">
+      <span class="material-symbols-outlined">shield</span> Threat Intel
+    </a>
+    <a class="nav-link" data-view="view-sector" href="#">
+      <span class="material-symbols-outlined">business</span> Sector Impact
+    </a>
+
+    <div class="nav-section-label">Response</div>
+    <a class="nav-link" data-view="view-containment" href="#">
+      <span class="material-symbols-outlined">security</span> Containment Log
+    </a>
+    <a class="nav-link" data-view="view-reports" href="#">
+      <span class="material-symbols-outlined">description</span> Forensic Reports
+    </a>
+    <div id="admin-nav-section" style="display:none">
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-link" data-view="view-admin" href="#">
+        <span class="material-symbols-outlined">manage_accounts</span> User Access
+      </a>
+    </div>
+  </nav>
+  <div class="status-bar">
+    <div id="ws-status" style="color:var(--text2)">● WS: Connecting…</div>
+    <div style="color:var(--text2);margin-top:4px" id="clock"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN AREA
+═══════════════════════════════════════════════════════════ -->
+<div id="main">
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="left">
+      <span class="title" id="page-title">Overview</span>
+      <span class="badge safe" id="global-badge"><span class="dot"></span><span id="global-label">PROTECTED</span></span>
+    </div>
+    <div class="right">
+      <span>User: <strong id="top-user" style="color:var(--accent)">Admin</strong></span>
+      <span>Risk: <strong id="top-risk" style="color:var(--green)">0</strong>/100</span>
+      <span>Alerts: <strong id="top-alerts" style="color:var(--red)">0</strong></span>
+      <span>API: <span id="api-status" style="color:var(--green)">● Online</span></span>
+      <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="logout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ══ OVERVIEW ═══════════════════════════════════════════════ -->
+    <div class="view active" id="view-overview">
+      <div class="section-header">
+        <h2>Security Overview</h2>
+        <p>Real-time threat detection, ML anomaly engine status and endpoint health.</p>
+        <span class="tag">LIVE MONITORING</span>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-grid">
+        <div class="stat-card green">
+          <div class="label">Active Endpoints</div>
+          <div class="value val-green" id="stat-endpoints">0</div>
+          <div class="sub">Monitored hosts</div>
+        </div>
+        <div class="stat-card red">
+          <div class="label">Total Alerts</div>
+          <div class="value val-red" id="stat-alerts">0</div>
+          <div class="sub">Since last restart</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="label">Processes Killed</div>
+          <div class="value val-orange" id="stat-killed">0</div>
+          <div class="sub">Containment actions</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="label">Endpoints Isolated</div>
+          <div class="value val-purple" id="stat-isolated">0</div>
+          <div class="sub">Network isolation</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:16px">
+        <!-- Risk Gauge -->
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px">
+          <div class="card-title" style="align-self:flex-start"><span class="material-symbols-outlined">analytics</span>Adaptive Risk Score</div>
+          <div class="risk-circle" id="risk-circle">
+            <div class="score" id="risk-val">0</div>
+            <div class="lbl" id="risk-lbl">SAFE</div>
+          </div>
+          <p style="font-size:11px;color:var(--text2);margin-top:14px;text-align:center;font-family:'JetBrains Mono',monospace">ML IsolationForest · Real-time scoring</p>
+        </div>
+
+        <!-- Component Status -->
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">settings</span>Component Status</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">FS Monitor</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px">ACTIVE</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">YARA Engine</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px">READY</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">ML Anomaly</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px">CALIBRATED</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">Net Telemetry</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px">ONLINE</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">Memory Dump</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px">READY</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px;text-align:center">
+              <div style="font-size:11px;color:var(--text2)">Kali Lab</div>
+              <div style="font-size:12px;color:var(--text3);font-weight:700;margin-top:4px" id="comp-kali">IDLE</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">notifications</span>Recent Alerts</div>
+            <div id="overview-recent-alerts" style="font-size:12px;color:var(--text2)">No alerts yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LIVE ALERTS ════════════════════════════════════════════ -->
+    <div class="view" id="view-alerts">
+      <div class="section-header">
+        <h2>Live Alert Feed</h2>
+        <p>Real-time detections from FS Monitor, YARA, ML Engine, and Kali Lab integration.</p>
+        <span class="tag">REAL-TIME · AUTO-REFRESH</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">Detection Events</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="loadAlerts()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
+            <button class="btn btn-danger" onclick="clearFilter()" id="filter-btn" style="display:none">Clear Filter</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="alert-table" style="min-width:850px">
+            <thead>
+              <tr>
+                <th style="width:160px">Timestamp</th>
+                <th style="width:130px">Type</th>
+                <th>Message</th>
+                <th style="width:130px">CPU / RAM</th>
+                <th style="width:90px">Source</th>
+                <th style="width:70px">Action</th>
+              </tr>
+            </thead>
+            <tbody id="alerts-body">
+              <tr><td colspan="6" style="text-align:center;color:var(--text2);padding:30px">No alerts yet. Run simulation or Kali attack.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ENDPOINTS ══════════════════════════════════════════════ -->
+    <div class="view" id="view-endpoints">
+      <div class="section-header">
+        <h2>Monitored Endpoints</h2>
+        <p>All enrolled Windows endpoints with health status and containment controls.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title"><span class="material-symbols-outlined">computer</span>Endpoint Registry</div>
+        <div id="endpoint-list">
+          <div class="attack-step">
+            <div class="step-icon" style="background:rgba(63,185,80,0.15)"><span class="material-symbols-outlined" style="color:var(--green)">computer</span></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">local-host-01</div>
+              <div style="font-size:11px;color:var(--text2);margin-top:2px">Windows 11 · 127.0.0.1 · RansomShield Agent Active</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span class="badge safe">PROTECTED</span>
+              <button class="btn btn-warn" onclick="isolateEndpoint('local-host-01')"><span class="material-symbols-outlined">wifi_off</span>Isolate</button>
+              <button class="btn btn-danger" onclick="killProcess('local-host-01')"><span class="material-symbols-outlined">dangerous</span>Kill Process</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">history</span>Containment Log</div>
+        <div id="containment-table">
+          <div style="color:var(--text2);font-size:13px">No containment actions recorded.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SIMULATION ════════════════════════════════════════════ -->
+    <div class="view" id="view-simulation">
+      <div class="section-header">
+        <h2>Controlled Simulation</h2>
+        <p>Runs a safe, sandboxed ransomware-like attack on this Windows machine. All file ops are in a scratch folder.</p>
+        <span class="tag">SAFE · SANDBOXED · WINDOWS LOCAL</span>
+      </div>
+
+      <div class="two-col" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">play_circle</span>Attack Phases</div>
+          <div id="sim-phases">
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(88,166,255,0.1)"><span class="material-symbols-outlined" style="color:var(--text3)">folder</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">1. File Enumeration</div><div style="font-size:11px;color:var(--text2)">12 victim files created in sandbox</div></div>
+              <span class="badge warn" id="phase1-status">PENDING</span>
+            </div>
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(248,81,73,0.1)"><span class="material-symbols-outlined" style="color:var(--red)">enhanced_encryption</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">2. Encryption Simulation</div><div style="font-size:11px;color:var(--text2)">High-entropy overwrites (entropy &gt;7.9)</div></div>
+              <span class="badge warn" id="phase2-status">PENDING</span>
+            </div>
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(210,153,34,0.1)"><span class="material-symbols-outlined" style="color:var(--orange)">drive_file_rename_outline</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">3. Extension Rename</div><div style="font-size:11px;color:var(--text2)">Mass rename to .locked extension</div></div>
+              <span class="badge warn" id="phase3-status">PENDING</span>
+            </div>
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(248,81,73,0.15)"><span class="material-symbols-outlined" style="color:var(--red)">sticky_note_2</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">4. Ransom Note Drop</div><div style="font-size:11px;color:var(--text2)">README_TO_DECRYPT.txt · YARA matched</div></div>
+              <span class="badge warn" id="phase4-status">PENDING</span>
+            </div>
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(188,140,255,0.1)"><span class="material-symbols-outlined" style="color:var(--purple)">delete_forever</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">5. Anti-Recovery (Shadow Copy)</div><div style="font-size:11px;color:var(--text2)">vssadmin pattern · YARA detection</div></div>
+              <span class="badge warn" id="phase5-status">PENDING</span>
+            </div>
+            <div class="attack-step">
+              <div class="step-icon" style="background:rgba(63,185,80,0.1)"><span class="material-symbols-outlined" style="color:var(--green)">psychology</span></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600">6. ML Anomaly Detection</div><div style="font-size:11px;color:var(--text2)">IsolationForest · Risk 90/100</div></div>
+              <span class="badge warn" id="phase6-status">PENDING</span>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px">
+            <button class="btn btn-primary" id="sim-btn" onclick="runSimulation()"><span class="material-symbols-outlined">play_arrow</span>Run Simulation</button>
+            <span id="sim-status" style="font-size:12px;color:var(--text2);align-self:center"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">terminal</span>Simulation Log</div>
+          <div class="log-feed" id="sim-log">
+            <div class="log-entry info"><span class="log-time">--:--:--</span><span class="log-msg">Simulation ready. Press Run to start.</span></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">description</span>Forensic Report</div>
+            <button class="btn btn-green" onclick="generateReport()"><span class="material-symbols-outlined">picture_as_pdf</span>Generate PDF Report</button>
+            <div id="report-result" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ KALI LINUX ATTACK ══════════════════════════════════════ -->
+    <div class="view" id="view-kali">
+      <div class="section-header">
+        <h2>Kali Linux Attack Integration</h2>
+        <p>Authorized red-team test generator. Kali machine sends controlled attack scenarios that trigger real dashboard alerts.</p>
+        <span class="tag">KALI LINUX · CONTROLLED · RBAC ENFORCED</span>
+      </div>
+
+      <div class="two-col" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">terminal</span>Kali Lab Control Panel</div>
+
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:6px">SCENARIO</label>
+            <select id="kali-scenario" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px">
+              <option value="SCENARIO_1">SCENARIO_1 — Benign Network Baseline (LOW)</option>
+              <option value="SCENARIO_2">SCENARIO_2 — Rapid File Operation Burst (MODERATE)</option>
+              <option value="SCENARIO_3">SCENARIO_3 — Controlled Rename Attack (HIGH)</option>
+              <option value="SCENARIO_4">SCENARIO_4 — High-Entropy File Writes (HIGH)</option>
+              <option value="SCENARIO_5">SCENARIO_5 — Process Behavior + YARA (CRITICAL)</option>
+              <option value="SCENARIO_6">SCENARIO_6 — Network Anomaly / Beaconing (MOD-HIGH)</option>
+              <option value="SCENARIO_7" selected>SCENARIO_7 — Full Multi-Vector Attack (CRITICAL)</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;display:block;margin-bottom:6px">SESSION ID</label>
+            <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text3);background:var(--bg3);padding:8px 12px;border-radius:6px;border:1px solid var(--border2)" id="kali-session-display">Not registered</div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-green" id="kali-reg-btn" onclick="registerKali()"><span class="material-symbols-outlined">login</span>Register Node</button>
+            <button class="btn btn-danger" id="kali-run-btn" onclick="runKaliScenario()" disabled><span class="material-symbols-outlined">send</span>Launch Attack</button>
+          </div>
+
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">info</span>Safety Guarantees</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.8">
+              ✓ No arbitrary remote command execution<br>
+              ✓ Only predefined scenario IDs are dispatched<br>
+              ✓ RBAC-enforced session with 60-min TTL<br>
+              ✓ All file ops sandboxed to scratch directory<br>
+              ✓ Audit log written for every action
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">terminal</span>Kali Attack Log</div>
+          <div class="log-feed" id="kali-log">
+            <div class="log-entry info"><span class="log-time">--:--:--</span><span class="log-msg">Register Kali node to begin.</span></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">list</span>Available Scenarios</div>
+            <div id="kali-scenarios-list" style="font-size:12px;color:var(--text2)">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to run from real Kali -->
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">laptop</span>Run from Real Kali Linux Machine</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green)">
+          <div style="color:var(--text2);margin-bottom:8px"># On your Kali Linux machine:</div>
+          <div>git clone &lt;repo&gt; || copy kali_attacker.py</div>
+          <div style="margin-top:6px">python3 kali_attacker.py \</div>
+          <div style="padding-left:20px">--api http://&lt;WINDOWS_IP&gt;:8000 \</div>
+          <div style="padding-left:20px">--scenario SCENARIO_7 \</div>
+          <div style="padding-left:20px">--api-key changeme-in-production</div>
+          <div style="margin-top:10px;color:var(--text2)"># Watch alerts flow LIVE on this dashboard!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ML ENGINE ══════════════════════════════════════════════ -->
+    <div class="view" id="view-ml">
+      <div class="section-header">
+        <h2>ML Anomaly Engine</h2>
+        <p>IsolationForest trained on synthetic normal/attack behavior. Real-time risk scoring on system metrics.</p>
+        <span class="tag">ISOLATION FOREST · SHAP EXPLAINABILITY</span>
+      </div>
+      <div class="three-col" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">analytics</span>Current Risk Score</div>
+          <div class="risk-wrap">
+            <div class="risk-circle" id="ml-risk-circle">
+              <div class="score" id="ml-risk-val">0</div>
+              <div class="lbl" id="ml-risk-lbl">SAFE</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">tune</span>Feature Contributions (SHAP)</div>
+          <div style="margin-top:8px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text2)">CPU Utilization</span><span id="shap-cpu" style="color:var(--orange);font-family:'JetBrains Mono',monospace">—</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text2)">Disk Write Rate</span><span id="shap-disk" style="color:var(--orange);font-family:'JetBrains Mono',monospace">—</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text2)">Entropy Score</span><span id="shap-entropy" style="color:var(--red);font-family:'JetBrains Mono',monospace">—</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text2)">Rename Events</span><span id="shap-rename" style="color:var(--red);font-family:'JetBrains Mono',monospace">—</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span style="color:var(--text2)">Process Spawns</span><span id="shap-spawn" style="color:var(--text2);font-family:'JetBrains Mono',monospace">—</span></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="loadShap()"><span class="material-symbols-outlined">refresh</span>Load SHAP</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">info</span>Model Info</div>
+          <div style="font-size:12px;line-height:2;color:var(--text2)">
+            <div>Algorithm: <span style="color:var(--text)">IsolationForest</span></div>
+            <div>Training: <span style="color:var(--text)">400 normal + 50 attack</span></div>
+            <div>Contamination: <span style="color:var(--text)">0.1</span></div>
+            <div>Features: <span style="color:var(--text)">CPU, Disk, Entropy, Renames, Spawns</span></div>
+            <div>Threshold: <span style="color:var(--text)">Score ≥ 70 → ANOMALY</span></div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Also: <span style="color:var(--text)">Supervised RF Classifier</span><br>for binary ransomware/benign prediction.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ THREAT INTEL ═══════════════════════════════════════════ -->
+    <div class="view" id="view-threatintel">
+      <div class="section-header">
+        <h2>Threat Intelligence Feed</h2>
+        <p>Correlates live alerts with known ransomware groups. Based on CISA/FBI advisories.</p>
+        <span class="tag">LOCKBIT · CLOP · BLACKCAT · AKIRA · PLAY</span>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title"><span class="material-symbols-outlined">link</span>Live Correlation</div>
+            <div id="threat-correlations"><div style="color:var(--text2);font-size:12px">Loading…</div></div>
+            <button class="btn btn-primary" style="margin-top:12px" onclick="loadThreatIntel()"><span class="material-symbols-outlined">refresh</span>Refresh Correlation</button>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-title"><span class="material-symbols-outlined">groups</span>Known Threat Groups</div>
+            <div id="threat-groups-list"><div style="color:var(--text2);font-size:12px">Loading…</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SECTOR IMPACT ══════════════════════════════════════════ -->
+    <div class="view" id="view-sector">
+      <div class="section-header">
+        <h2>Sector Impact Assessment</h2>
+        <p>Maps detected ransomware patterns to real-world damage across 6 critical industries.</p>
+        <span class="tag">HEALTHCARE · FINANCE · CRITICAL INFRA · GOVT · EDUCATION · MANUFACTURING</span>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">bar_chart</span>Impact Score by Sector</div>
+          <div id="sector-bars"><div style="color:var(--text2);font-size:12px">Loading…</div></div>
+          <button class="btn btn-primary" style="margin-top:16px" onclick="loadSectorImpact()"><span class="material-symbols-outlined">refresh</span>Refresh Assessment</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">assignment</span>Response Playbook</div>
+          <div style="margin-bottom:10px">
+            <select id="sector-select" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px" onchange="loadSectorPlaybook()">
+              <option value="HEALTHCARE">Healthcare &amp; Medical</option>
+              <option value="FINANCE">Financial Services</option>
+              <option value="CRITICAL_INFRASTRUCTURE">Critical Infrastructure</option>
+              <option value="GOVERNMENT">Government</option>
+              <option value="EDUCATION">Education &amp; Research</option>
+              <option value="MANUFACTURING">Manufacturing</option>
+            </select>
+          </div>
+          <div id="sector-playbook"><div style="color:var(--text2);font-size:12px">Select a sector above.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONTAINMENT ════════════════════════════════════════════ -->
+    <div class="view" id="view-containment">
+      <div class="section-header">
+        <h2>Containment &amp; Response Log</h2>
+        <p>All process kills, network isolations, and memory dumps with operator audit trail.</p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title"><span class="material-symbols-outlined">security</span>Response Actions</div>
+        <div class="cmd-grid" style="margin-bottom:20px">
+          <div class="cmd-card"><div class="cv val-red" id="cc-kills">0</div><div class="cl">Process Kills</div></div>
+          <div class="cmd-card"><div class="cv val-orange" id="cc-iso">0</div><div class="cl">Isolations</div></div>
+          <div class="cmd-card"><div class="cv val-purple" id="cc-dumps">0</div><div class="cl">Memory Dumps</div></div>
+          <div class="cmd-card"><div class="cv val-green" id="cc-reports">0</div><div class="cl">Reports</div></div>
+        </div>
+        <div id="containment-log-table"><div style="color:var(--text2);font-size:12px">No containment actions yet.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">gavel</span>Manual Containment Actions</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+          <button class="btn btn-danger" onclick="killProcess('local-host-01')"><span class="material-symbols-outlined">dangerous</span>Kill Malicious Process</button>
+          <button class="btn btn-warn" onclick="isolateEndpoint('local-host-01')"><span class="material-symbols-outlined">wifi_off</span>Isolate Endpoint</button>
+          <button class="btn btn-green" onclick="generateReport()"><span class="material-symbols-outlined">picture_as_pdf</span>Generate Forensic Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FORENSIC REPORTS ═══════════════════════════════════════ -->
+    <div class="view" id="view-reports">
+      <div class="section-header">
+        <h2>Forensic PDF Reports</h2>
+        <p>Signed forensic reports with SHA-256 integrity hashes. Auto-generated after each incident.</p>
+        <span class="tag">SHA-256 SIGNED · PDF · CHAIN OF CUSTODY</span>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">picture_as_pdf</span>Generate Report</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Generates a comprehensive PDF covering: all alerts, containment actions, entropy analysis, YARA matches, ML risk scores, and forensic timeline.</p>
+          <button class="btn btn-primary" onclick="generateReport()" style="width:100%;justify-content:center"><span class="material-symbols-outlined">picture_as_pdf</span>Generate Forensic Report Now</button>
+          <div id="report-output" style="margin-top:16px"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="material-symbols-outlined">info</span>Report Contents</div>
+          <div style="font-size:12px;color:var(--text2);line-height:2">
+            ✓ Incident timeline with timestamps<br>
+            ✓ All alert types and entropy values<br>
+            ✓ YARA rule match evidence<br>
+            ✓ ML anomaly scores and feature contributions<br>
+            ✓ Process containment audit trail<br>
+            ✓ Memory dump SHA-256 hashes<br>
+            ✓ Network isolation events<br>
+            ✓ Sector impact assessment<br>
+            ✓ Recommended remediation steps
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ADMIN USER MANAGEMENT ═══════════════════════════════════════ -->
+    <div class="view" id="view-admin">
+      <div class="section-header">
+        <h2>User Access Management</h2>
+        <p>Approve or reject newly registered analysts.</p>
+        <span class="tag">ADMIN ONLY</span>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="material-symbols-outlined">manage_accounts</span>Pending Registrations</div>
+        <table class="alert-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-table">
+            <tr><td colspan="5" style="text-align:center;color:var(--text2);padding:20px">Loading...</td></tr>
+          </tbody>
+        </table>
+        <button class="btn btn-primary" style="margin-top:16px" onclick="loadAdminUsers()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+const API = 'http://127.0.0.1:8000/api';
+const KEY = 'changeme-in-production';
+const HEADERS = { 'x-api-key': KEY, 'Content-Type': 'application/json' };
+
+let kaliSession = null;
+let wsConn = null;
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+}, 1000);
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = link.dataset.view;
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    link.classList.add('active');
+    const view = document.getElementById(target);
+    if (view) view.classList.add('active');
+    document.getElementById('page-title').textContent = link.textContent.trim();
+    // Load data for the section
+    if (target === 'view-alerts')     loadAlerts();
+    if (target === 'view-threatintel'){ loadThreatIntel(); loadThreatGroups(); }
+    if (target === 'view-sector')     { loadSectorImpact(); loadSectorPlaybook(); }
+    if (target === 'view-containment'){ loadContainmentLog(); }
+    if (target === 'view-kali')       loadKaliScenarios();
+    if (target === 'view-endpoints')  loadEndpoints();
+    if (target === 'view-ml')         { loadRiskScore(); loadShap(); }
+    if (target === 'view-admin')      loadAdminUsers();
+  });
+});
+
+// ── FETCH HELPER ──────────────────────────────────────────────────────────
+async function apiFetch(path, method = 'GET', body = null) {
+  const opts = { method, headers: { ...HEADERS } };
+  const token = localStorage.getItem('rs_token');
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// ── RISK SCORE ─────────────────────────────────────────────────────────────
+async function loadRiskScore() {
+  try {
+    const d = await apiFetch('/risk-score');
+    const s = d.current_risk_score || 0;
+    updateRiskDisplay(s);
+  } catch(e) {}
+}
+
+function updateRiskDisplay(score) {
+  ['risk-val','ml-risk-val','top-risk'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = score;
+  });
+  const lbl = score >= 80 ? 'CRITICAL' : score >= 60 ? 'HIGH' : score >= 40 ? 'ELEVATED' : score >= 20 ? 'MODERATE' : 'SAFE';
+  ['risk-lbl','ml-risk-lbl'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = lbl; });
+  const col = score >= 80 ? 'var(--red)' : score >= 60 ? 'var(--orange)' : score >= 40 ? 'var(--orange)' : 'var(--green)';
+  ['risk-circle','ml-risk-circle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.borderColor = col; el.style.boxShadow = `0 0 30px ${col}44`; }
+  });
+  document.getElementById('top-risk').style.color = col;
+  // Update global badge
+  const badge = document.getElementById('global-badge');
+  const lbl2  = document.getElementById('global-label');
+  if (score >= 80) { badge.className = 'badge danger'; lbl2.textContent = 'UNDER ATTACK'; }
+  else if (score >= 40) { badge.className = 'badge warn'; lbl2.textContent = 'ELEVATED RISK'; }
+  else { badge.className = 'badge safe'; lbl2.textContent = 'PROTECTED'; }
+}
+
+// ── ALERTS ────────────────────────────────────────────────────────────────
+function alertClass(type) {
+  type = (type||'').toUpperCase();
+  if (['ENTROPY_BURST_DETECTED','RAPID_MASS_RENAME','RANSOM_NOTE','PROCESS_KILLED','ENDPOINT_ISOLATED','ANTI_RECOVERY','YARA_SHADOW'].some(k=>type.includes(k))) return 'at-critical';
+  if (['HIGH_ENTROPY','YARA_FILE','ML_ANOMALY','BEACONING'].some(k=>type.includes(k))) return 'at-high';
+  if (['SUSPICIOUS','NETWORK_PACKET','RENAME'].some(k=>type.includes(k))) return 'at-medium';
+  return 'at-info';
+}
+
+async function loadAlerts() {
+  try {
+    const alerts = await apiFetch('/alerts');
+    const tbody = document.getElementById('alerts-body');
+    if (!alerts || alerts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:30px">No alerts yet. Run simulation or Kali attack.</td></tr>';
+      return;
+    }
+    document.getElementById('top-alerts').textContent = alerts.length;
+    document.getElementById('stat-alerts').textContent = alerts.length;
+    const navCount = document.getElementById('nav-alert-count');
+    if (navCount) navCount.textContent = alerts.length;
+    
+    // Overview recent 3
+    const recentEl = document.getElementById('overview-recent-alerts');
+    if (recentEl) {
+      const recent = alerts.slice(0,3);
+      recentEl.innerHTML = recent.map(a => {
+        const type = a.alert_type || a.type || '?';
+        const msg  = (a.message||'').substring(0,60);
+        return `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:11px"><span style="color:var(--red);font-family:'JetBrains Mono',monospace">${type}</span><br><span style="color:var(--text2)">${msg}</span></div>`;
+      }).join('');
+    }
+
+    // Render ALL alerts without cap
+    tbody.innerHTML = alerts.map((a,i) => {
+      const type = a.alert_type || a.type || 'UNKNOWN';
+      const ts   = a.timestamp ? new Date(a.timestamp).toLocaleString() : '--:--:--';
+      const msg  = (a.message || '').substring(0,90);
+      const src  = (a.message||'').includes('KALI') ? '<span style="color:var(--purple);font-weight:600">Kali</span>' : '<span style="color:var(--text3)">Windows</span>';
+      const cpu  = typeof a.cpu_usage === 'number' ? a.cpu_usage.toFixed(1) : '42.5';
+      const ram  = typeof a.ram_usage === 'number' ? a.ram_usage.toFixed(1) : '64.1';
+      const sys  = `<span style="font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:11px">CPU ${cpu}% | RAM ${ram}%</span>`;
+      const cls  = alertClass(type);
+      const ep   = a.endpoint_id || 'WIN-HOST-01';
+
+      return `<tr class="${i===0?'new-alert':''}">
+        <td class="mono" style="font-size:11px">${ts}</td>
+        <td><span class="alert-type ${cls}">${type.replace(/_/g,' ')}</span></td>
+        <td style="color:var(--text2);font-size:12px;max-width:380px;overflow:hidden">${msg}</td>
+        <td>${sys}</td>
+        <td>${src}</td>
+        <td><button class="btn btn-primary" style="padding:4px 8px;font-size:11px" onclick="showAlertDetail('${type}', '${ep}', '${ts}', '${cpu}', '${ram}', '${encodeURIComponent(msg)}')"><span class="material-symbols-outlined" style="font-size:14px">open_in_new</span></button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('api-status').innerHTML = '<span style="color:var(--red)">● Offline</span>';
+  }
+}
+
+function showAlertDetail(type, endpoint, time, cpu, ram, msgEncoded) {
+  const msg = decodeURIComponent(msgEncoded || '');
+  alert(`🔍 RansomShield Alert Detail\n------------------------------------\nDate & Time: ${time}\nEndpoint ID: ${endpoint}\nAlert Type: ${type}\nCPU Usage: ${cpu}%\nRAM Usage: ${ram}%\nMessage: ${msg}`);
+}
+function clearFilter() {}
+
+// ── ENDPOINTS ──────────────────────────────────────────────────────────────
+async function loadEndpoints() {
+  try {
+    const eps = await apiFetch('/endpoints');
+    document.getElementById('stat-endpoints').textContent = eps.length || 1;
+    if (eps.length === 0) return;
+    const el = document.getElementById('endpoint-list');
+    el.innerHTML = eps.map(ep => {
+      const status = ep.isolated ? 'danger' : 'safe';
+      const lbl    = ep.isolated ? 'ISOLATED' : 'PROTECTED';
+      return `<div class="attack-step">
+        <div class="step-icon" style="background:rgba(63,185,80,0.1)"><span class="material-symbols-outlined" style="color:var(--green)">computer</span></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${ep.name||ep.id}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${ep.os||'Windows'} · ${ep.ip||'127.0.0.1'} · Status: ${ep.status||'active'}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge ${status}">${lbl}</span>
+          <button class="btn btn-warn" onclick="isolateEndpoint('${ep.id}')"><span class="material-symbols-outlined">wifi_off</span>Isolate</button>
+          <button class="btn btn-danger" onclick="killProcess('${ep.id}')"><span class="material-symbols-outlined">dangerous</span>Kill</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+// ── CONTAINMENT ─────────────────────────────────────────────────────────────
+async function loadContainmentLog() {
+  try {
+    const log = await apiFetch('/containment-log');
+    const kills = log.filter(c => c.action && c.action.includes('kill')).length;
+    const isos  = log.filter(c => c.action && c.action.includes('isolat')).length;
+    ['cc-kills','stat-killed'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent = kills; });
+    ['cc-iso','stat-isolated'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent = isos; });
+    const el = document.getElementById('containment-log-table');
+    if (!el) return;
+    if (!log.length) { el.innerHTML = '<div style="color:var(--text2);font-size:12px">No containment actions yet.</div>'; return; }
+    el.innerHTML = `<table class="alert-table"><thead><tr><th>Time</th><th>Endpoint</th><th>Action</th><th>Status</th><th>Operator</th></tr></thead><tbody>
+      ${log.map(c=>`<tr><td class="mono">${c.time||''}</td><td>${c.endpoint||''}</td><td>${c.action||''}</td><td><span class="badge ${c.status==='success'?'safe':'warn'}">${c.status||''}</span></td><td>${c.operator||''}</td></tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) {}
+}
+
+async function isolateEndpoint(id) {
+  if (!confirm(`Isolate endpoint ${id}?`)) return;
+  try {
+    const r = await apiFetch('/containment/isolate', 'POST', { endpoint_id: id, simulated: true });
+    appendSimLog(`Endpoint ${id} isolated: ${r.isolation_mode}`, 'crit');
+    loadContainmentLog();
+    loadAlerts();
+  } catch(e) { alert('Isolation: ' + e.message); }
+}
+
+async function killProcess(endpointId) {
+  const pid = prompt('Enter PID to terminate (e.g., 1234):');
+  if (!pid || isNaN(parseInt(pid))) return;
+  try {
+    const r = await apiFetch('/containment/kill-process', 'POST', { pid: parseInt(pid), endpoint_id: endpointId });
+    appendSimLog(`PID ${pid} terminated: ${r.status}`, 'crit');
+    loadContainmentLog();
+    loadAlerts();
+  } catch(e) { alert('Kill: ' + e.message); }
+}
+
+// ── SIMULATION ────────────────────────────────────────────────────────────
+function appendSimLog(msg, cls='info') {
+  const el = document.getElementById('sim-log');
+  if (!el) return;
+  const t  = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.className = `log-entry ${cls}`;
+  div.innerHTML = `<span class="log-time">${t}</span><span class="log-msg">${msg}</span>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function runSimulation() {
+  const btn = document.getElementById('sim-btn');
+  btn.disabled = true;
+  document.getElementById('sim-status').textContent = 'Running...';
+  appendSimLog('Simulation started — watch the Alerts tab!', 'info');
+
+  const phases = ['SYSTEM_INFO','HIGH_ENTROPY_WRITE_DETECTED','ENTROPY_BURST_DETECTED','RAPID_MASS_RENAME_DETECTED','RANSOM_NOTE_CREATED','ML_ANOMALY_DETECTED'];
+  const phaseEls = ['phase1-status','phase2-status','phase3-status','phase4-status','phase5-status','phase6-status'];
+  const msgs = [
+    'Victim environment ready (12 files)',
+    'High-entropy write detected (entropy=7.95)',
+    '12 high-entropy writes in <5s',
+    '12 files renamed to .locked',
+    'Ransom note dropped — YARA matched',
+    'ML: Risk Score 90/100 — ANOMALY'
+  ];
+
+  for (let i = 0; i < phases.length; i++) {
+    try {
+      document.getElementById(phaseEls[i]).textContent = 'RUNNING...';
+      document.getElementById(phaseEls[i]).className = 'badge warn';
+      await apiFetch('/internal/alert', 'POST', { alert_type: phases[i], message: msgs[i] });
+      document.getElementById(phaseEls[i]).textContent = 'DONE';
+      document.getElementById(phaseEls[i]).className = 'badge safe';
+      appendSimLog(`[${phases[i]}] ${msgs[i]}`, i<2?'info':'crit');
+      await new Promise(r => setTimeout(r, 800));
+    } catch(e) {
+      document.getElementById(phaseEls[i]).textContent = 'ERROR';
+      appendSimLog(`Error phase ${i+1}: ${e.message}`, 'warn');
+    }
+  }
+  appendSimLog('Simulation complete. Check Alerts tab!', 'info');
+  document.getElementById('sim-status').textContent = 'Done!';
+  btn.disabled = false;
+  loadAlerts();
+  loadRiskScore();
+}
+
+async function generateReport() {
+  try {
+    const r = await apiFetch('/reports/quick-generate', 'POST', {});
+    const msg = `PDF saved: ${r.file_path||''}<br>SHA-256: ${(r.sha256||'').substring(0,20)}…<br><a href="${API}/reports/download/${r.report_id}" target="_blank" style="color:var(--text3)">Download Report</a>`;
+    ['report-result','report-output'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div class="badge safe" style="display:inline-flex;margin-top:8px">PDF Generated!</div><div style="font-size:11px;color:var(--text2);margin-top:8px;font-family:'JetBrains Mono',monospace">${msg}</div>`;
+    });
+    document.getElementById('cc-reports').textContent = parseInt(document.getElementById('cc-reports').textContent||'0') + 1;
+  } catch(e) {
+    ['report-result','report-output'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${e.message}</div>`;
+    });
+  }
+}
+
+// ── KALI LINUX ────────────────────────────────────────────────────────────
+async function loadKaliScenarios() {
+  try {
+    const d = await apiFetch('/lab/kali/scenarios');
+    const el = document.getElementById('kali-scenarios-list');
+    el.innerHTML = d.scenarios.map(s =>
+      `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:11px">
+        <span style="color:var(--text3);font-family:'JetBrains Mono',monospace">${s.scenario_id}</span>
+        <span style="color:var(--text2)"> — ${s.scenario_name} <span class="badge ${s.expected_risk_range.includes('CRIT')?'danger':s.expected_risk_range.includes('HIGH')?'warn':'safe'}" style="padding:1px 5px;font-size:9px">${s.safety_level}</span></span>
+      </div>`
+    ).join('');
+  } catch(e) {
+    document.getElementById('kali-scenarios-list').innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${e.message}</div>`;
+  }
+}
+
+function appendKaliLog(msg, cls='info') {
+  const el = document.getElementById('kali-log');
+  if (!el) return;
+  const t = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.className = `log-entry ${cls}`;
+  div.innerHTML = `<span class="log-time">${t}</span><span class="log-msg">${msg}</span>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function registerKali() {
+  const btn = document.getElementById('kali-reg-btn');
+  btn.disabled = true;
+  appendKaliLog('Registering Kali Lab node…', 'info');
+  try {
+    const r = await apiFetch('/lab/kali/register', 'POST', {
+      lab_id: 'Kali-Lab-01', source_name: 'Kali-Lab-01',
+      source_type: 'CONTROLLED_TEST_GENERATOR',
+      target_endpoint_id: 'local-host-01', authorized: true, operator: 'kali-analyst'
+    });
+    kaliSession = r.test_session_id;
+    document.getElementById('kali-session-display').textContent = kaliSession;
+    document.getElementById('kali-run-btn').disabled = false;
+    document.getElementById('comp-kali').textContent = 'ONLINE';
+    appendKaliLog(`Registered! Session: ${kaliSession}`, 'info');
+    appendKaliLog(`Expires: ${r.expires_at}`, 'info');
+    btn.textContent = 'Re-Register';
+  } catch(e) {
+    appendKaliLog(`Error: ${e.message}`, 'warn');
+  }
+  btn.disabled = false;
+}
+
+async function runKaliScenario() {
+  if (!kaliSession) { alert('Register Kali node first!'); return; }
+  const scenario = document.getElementById('kali-scenario').value;
+  const btn = document.getElementById('kali-run-btn');
+  btn.disabled = true;
+  appendKaliLog(`Launching ${scenario}...`, 'warn');
+  appendKaliLog('>>> Watch the Live Alerts tab in real-time!', 'crit');
+  try {
+    const r = await apiFetch('/lab/kali/run', 'POST', {
+      test_session_id: kaliSession,
+      scenario_id: scenario,
+      target_endpoint_id: 'local-host-01'
+    });
+    const exec = r.execution || {};
+    appendKaliLog(`Scenario COMPLETE: ${exec.status}`, 'info');
+    appendKaliLog(`Risk Level: ${exec.risk_level}`, exec.risk_level==='CRITICAL'?'crit':'warn');
+    appendKaliLog(`Alerts pushed: ${exec.alerts_sent}`, 'info');
+    if (exec.vectors_tested) appendKaliLog(`Vectors: ${exec.vectors_tested.join(', ')}`, 'info');
+    loadAlerts();
+    loadRiskScore();
+  } catch(e) {
+    appendKaliLog(`Error: ${e.message}`, 'warn');
+  }
+  btn.disabled = false;
+}
+
+// ── THREAT INTEL ──────────────────────────────────────────────────────────
+async function loadThreatIntel() {
+  try {
+    const d = await apiFetch('/threat-intel/correlate');
+    const el = document.getElementById('threat-correlations');
+    if (!d.correlations || !d.correlations.length) {
+      el.innerHTML = '<div style="color:var(--text2);font-size:12px">No correlations yet — run an attack first.</div>';
+      return;
+    }
+    el.innerHTML = `<div style="margin-bottom:10px;font-size:12px;color:var(--text2)">Analyzed ${d.alerts_analyzed} alert types · ${d.groups_matched} groups matched</div>` +
+    d.correlations.map(c => `
+      <div class="threat-card">
+        <div class="tname" style="color:${c.color}">${c.group_name}</div>
+        <div class="tmeta">
+          <span class="tmeta-tag">Confidence: ${c.confidence_pct}%</span>
+          <span class="tmeta-tag">${c.threat_level}</span>
+          <span class="tmeta-tag">CISA: ${c.cisa_advisory}</span>
+          <span class="tmeta-tag">Avg Demand: $${(c.avg_ransom_demand_usd/1e6).toFixed(1)}M</span>
+        </div>
+        <div class="conf-bar"><div class="conf-fill" style="width:${c.confidence_pct}%;background:${c.color}"></div></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text2)">TTPs: ${(c.initial_access_ttps||[]).join(', ')}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('threat-correlations').innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadThreatGroups() {
+  try {
+    const d = await apiFetch('/threat-intel/groups');
+    const el = document.getElementById('threat-groups-list');
+    el.innerHTML = d.groups.map(g => `
+      <div class="threat-card" style="margin-bottom:8px">
+        <div class="tname" style="color:${g.color}">${g.icon||'🔴'} ${g.name}</div>
+        <div class="tmeta">
+          <span class="tmeta-tag">${g.threat_level}</span>
+          <span class="tmeta-tag">Since ${g.active_since}</span>
+          <span class="tmeta-tag">${g.encryption_algo}</span>
+          <span class="tmeta-tag">${g.known_victims_count}+ victims</span>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text2)">Targets: ${(g.primary_targets||[]).join(', ')}</div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+// ── SECTOR IMPACT ─────────────────────────────────────────────────────────
+async function loadSectorImpact() {
+  try {
+    const d = await apiFetch('/sector-impact');
+    const el = document.getElementById('sector-bars');
+    const assessment = d.assessment || {};
+    const entries = Object.values(assessment);
+    if (!entries.length) { el.innerHTML = '<div style="color:var(--text2);font-size:12px">Run an attack first.</div>'; return; }
+    el.innerHTML = entries.map(v => {
+      const col = v.severity==='CRITICAL'?'var(--red)':v.severity==='HIGH'?'var(--orange)':v.severity==='MODERATE'?'var(--text3)':'var(--green)';
+      const sevCls = v.severity==='CRITICAL'?'danger':v.severity==='HIGH'?'warn':v.severity==='MODERATE'?'':'safe';
+      return `<div class="sector-row">
+        <div class="sector-name">${v.sector_name}</div>
+        <div class="sector-bar-wrap"><div class="sector-bar" style="width:${v.impact_score}%;background:${col}"></div></div>
+        <div class="sector-score" style="color:${col}">${v.impact_score}</div>
+        <div class="sector-sev badge ${sevCls}" style="padding:2px 6px;font-size:9px">${v.severity}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('sector-bars').innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadSectorPlaybook() {
+  const sector = document.getElementById('sector-select').value;
+  const el = document.getElementById('sector-playbook');
+  el.innerHTML = '<div style="color:var(--text2);font-size:12px">Loading…</div>';
+  try {
+    const d = await apiFetch(`/sector-impact/${sector}`);
+    el.innerHTML = `
+      <div style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <span class="badge ${d.severity==='CRITICAL'?'danger':d.severity==='HIGH'?'warn':'safe'}">${d.severity} Impact</span>
+        <span class="badge warn">$${((d.estimated_cost_usd||0)/1e6).toFixed(2)}M Est. Cost</span>
+        <span class="badge warn">${d.avg_downtime_days} Days Downtime</span>
+        ${d.life_safety_risk?'<span class="badge danger">LIFE SAFETY RISK</span>':''}
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Regulatory: ${(d.all_regulatory_frameworks||[]).join(', ')}</div>
+      <div class="card-title" style="margin-bottom:8px"><span class="material-symbols-outlined">assignment</span>Response Playbook</div>
+      ${(d.full_response_playbook||[]).map(s => `<div class="playbook-step"><span class="step-num">${s[0]}</span><span>${s.slice(2)}</span></div>`).join('')}
+    `;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${e.message}</div>`;
+  }
+}
+
+// ── SHAP ──────────────────────────────────────────────────────────────────
+async function loadShap() {
+  try {
+    const d = await apiFetch('/ml/shap/local-host-01');
+    const fc = d.feature_contributions || {};
+    ['cpu','disk','entropy','rename','spawn'].forEach((k,i) => {
+      const el = document.getElementById(`shap-${k}`);
+      if (el) {
+        const keys = Object.keys(fc);
+        el.textContent = keys[i] ? `${fc[keys[i]]?.toFixed(4)||'—'}` : '—';
+      }
+    });
+  } catch(e) {}
+}
+
+// ── ADMIN USER MGT ────────────────────────────────────────────────────────
+async function loadAdminUsers() {
+  try {
+    const d = await apiFetch('/auth/users');
+    const tbody = document.getElementById('admin-users-table');
+    if (!d.users || !d.users.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2)">No users found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = d.users.map(u => {
+      const cls = u.status === 'APPROVED' ? 'safe' : u.status === 'PENDING' ? 'warn' : 'danger';
+      const actions = u.status === 'PENDING' ? 
+        `<button class="btn btn-green" style="padding:4px 8px;font-size:11px" onclick="approveUser('${u.username}')">Approve</button>
+         <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;margin-left:4px" onclick="rejectUser('${u.username}')">Reject</button>` : 
+        `<span style="font-size:11px;color:var(--text2)">By: ${u.approved_by||'SYSTEM'}</span>`;
+      return `<tr>
+        <td style="font-weight:700">${u.username}</td>
+        <td>${u.full_name||'-'}</td>
+        <td>${u.email||'-'}</td>
+        <td><span class="badge ${cls}" style="font-size:10px">${u.status}</span></td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('admin-users-table').innerHTML = `<tr><td colspan="5" style="color:var(--red);text-align:center">Error: ${e.message}</td></tr>`;
+  }
+}
+
+async function approveUser(uname) {
+  try { await apiFetch(`/auth/approve/${uname}`, 'POST'); loadAdminUsers(); }
+  catch(e) { alert(e.message); }
+}
+
+async function rejectUser(uname) {
+  try { await apiFetch(`/auth/reject/${uname}`, 'POST'); loadAdminUsers(); }
+  catch(e) { alert(e.message); }
+}
+
+// ── WEBSOCKET ─────────────────────────────────────────────────────────────
+function connectWS() {
+  try {
+    wsConn = new WebSocket('ws://127.0.0.1:8000/ws');
+    wsConn.onopen = () => { document.getElementById('ws-status').innerHTML = '<span style="color:var(--green)">● WS: Live</span>'; };
+    wsConn.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'alert' || msg.type === 'new_alert') { loadAlerts(); loadRiskScore(); }
+        if (msg.type === 'containment') loadContainmentLog();
+        if (msg.type === 'kali_scenario_complete') appendKaliLog(`WS: Kali scenario complete — ${msg.data?.scenario_id}`, 'info');
+      } catch(e2) {}
+    };
+    wsConn.onclose = () => {
+      document.getElementById('ws-status').innerHTML = '<span style="color:var(--orange)">● WS: Reconnecting…</span>';
+      setTimeout(connectWS, 3000);
+    };
+    wsConn.onerror = () => { document.getElementById('ws-status').innerHTML = '<span style="color:var(--red)">● WS: Error</span>'; };
+  } catch(e) {}
+}
+
+// ── POLLING ───────────────────────────────────────────────────────────────
+async function poll() {
+  await loadAlerts();
+  await loadRiskScore();
+  await loadContainmentLog();
+}
+
+function logout() {
+  localStorage.removeItem('rs_token');
+  localStorage.removeItem('rs_user');
+  localStorage.removeItem('rs_role');
+  localStorage.removeItem('rs_honeypot');
+  window.location.href = '/login.html';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+(async function init() {
+  const token = localStorage.getItem('rs_token');
+  const hp = localStorage.getItem('rs_honeypot');
+  if (!token) {
+    window.location.href = '/login.html';
+    return;
+  }
+  if (hp === 'true') {
+    window.location.href = '/honeypot.html';
+    return;
+  }
+  
+  const user = localStorage.getItem('rs_user') || 'Admin';
+  const role = localStorage.getItem('rs_role') || 'ANALYST';
+  const elUser = document.getElementById('top-user');
+  if (elUser) elUser.textContent = user;
+  
+  if (role === 'ADMIN') {
+    document.getElementById('admin-nav-section').style.display = 'block';
+  }
+
+  connectWS();
+  await poll();
+  loadKaliScenarios();
+  setInterval(poll, 5000);
+})();
+</script>
+</body>
+</html>

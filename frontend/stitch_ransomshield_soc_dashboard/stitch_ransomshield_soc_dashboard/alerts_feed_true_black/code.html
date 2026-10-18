@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alerts - RansomShield</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1c2b3c",
+                        "tertiary-container": "#ff5451",
+                        "tertiary": "#ffb3ad",
+                        "surface-tint": "#ffb5a0",
+                        "on-surface-variant": "#e4beb4",
+                        "surface": "#051424",
+                        "on-surface": "#d4e4fa",
+                        "inverse-on-surface": "#233143",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#5c0008",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "on-background": "#d4e4fa",
+                        "on-primary-container": "#541200",
+                        "on-secondary-container": "#004119",
+                        "on-primary-fixed-variant": "#862200",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#d4e4fa",
+                        "on-secondary": "#003915",
+                        "surface-container-highest": "#273647",
+                        "primary": "#ffb5a0",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "surface-bright": "#2c3a4c",
+                        "secondary-fixed": "#6bff8f",
+                        "on-secondary-fixed-variant": "#005321",
+                        "secondary-fixed-dim": "#4ae176",
+                        "on-error": "#690005",
+                        "outline": "#ab8980",
+                        "inverse-primary": "#b02f00",
+                        "outline-variant": "#5b4039",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#0d1c2d",
+                        "primary-container": "#ff5722",
+                        "on-primary-fixed": "#3b0900",
+                        "on-tertiary-fixed": "#410004",
+                        "primary-fixed-dim": "#ffb5a0",
+                        "surface-dim": "#051424",
+                        "background": "#051424",
+                        "on-primary": "#5f1500",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#00b954",
+                        "secondary": "#4ae176",
+                        "primary-fixed": "#ffdbd1",
+                        "surface-container": "#122131",
+                        "surface-container-lowest": "#010f1f",
+                        "on-tertiary": "#68000a",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-variant": "#273647",
+                        "bg-level-0": "#050505",
+                        "bg-level-1": "#111111",
+                        "bg-level-2": "#1a1a1a",
+                        "border-level-1": "#2d2d30",
+                        "border-level-2": "#3f3f46",
+                        "button-primary": "#ff5722",
+                        "button-critical": "#ef4444"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "density-compact": "4px",
+                        "density-comfortable": "12px",
+                        "unit": "4px",
+                        "margin-page": "24px",
+                        "card-padding": "16px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "code-xs": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "code-xs": ["10px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #050505; color: #d4e4fa; }
+        .data-row { transition: background-color 0.15s ease; border-bottom: 1px solid #2d2d30; }
+        .data-row:hover { background-color: #1a1a1a; }
+        .data-row.active { border-left: 3px solid #ff5722; background-color: #111111; }
+        .status-dot { width: 8px; height: 8px; display: inline-block; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden font-body-md text-on-surface">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-[#050505] fixed left-0 top-0 h-full w-64 border-r border-outline-variant dark:border-outline-variant flex-col py-margin-page z-40">
+<div class="px-margin-page mb-8">
+<img alt="RansomShield Logo" class="h-12 w-auto mb-3" src="https://lh3.googleusercontent.com/aida/AP1WRLvvlqAF1d0hgyUfxYLHTYyPbgi3lwwbb6hMyajwG0kJgaWheJZkrqa9nf8nazE63YXbqpC6Wy6xrsgUpT3Up4fHk4dN32NAJpbsE2kRIC4p45XXhAKw_xZO7Gfns9EHt-XDqP0wAB36sXp8Of45SvCeDPHY3O_DmpIN-UnFULu0lZecQhMZwYz-APLWGZCq8mF3b9LBkRpq2cSdtiNsijzsZRtK7gEb9VYwKDbG5WhsHtjR7wgAZRfM1KE"/>
+<p class="font-code-xs text-code-xs text-on-surface-variant mt-1">v2.4.0 Stable</p>
+</div>
+<div class="flex-grow">
+<a class="flex items-center px-margin-page py-3 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center px-margin-page py-3 text-primary font-bold border-l-4 border-primary bg-[#111111] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">warning</span>
+                Alerts
+            </a>
+<a class="flex items-center px-margin-page py-3 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">devices</span>
+                Endpoints
+            </a>
+<a class="flex items-center px-margin-page py-3 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">security_update_good</span>
+                Containment Log
+            </a>
+<a class="flex items-center px-margin-page py-3 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto border-t border-outline-variant dark:border-outline-variant pt-4">
+<a class="flex items-center px-margin-page py-2 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">help</span>
+                Support
+            </a>
+<a class="flex items-center px-margin-page py-2 text-on-surface-variant hover:text-on-surface hover:bg-[#111111] transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined mr-3">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="bg-[#050505] fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] z-50 border-b border-outline-variant dark:border-outline-variant flex justify-between items-center h-16 px-margin-page">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-headline-md font-headline-md text-primary dark:text-primary">RansomShield</h2>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">shield_with_heart</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="mt-16 w-full md:ml-64 p-margin-page overflow-y-auto h-[calc(100vh-64px)] bg-[#050505]">
+<div class="mb-6 flex justify-between items-end">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface">Active Alerts</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Real-time threat detection feed.</p>
+</div>
+<div class="flex gap-4">
+<button class="border border-[#2d2d30] px-4 py-2 text-on-surface-variant hover:bg-[#111111] transition-colors font-body-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                </button>
+<button class="border border-[#2d2d30] px-4 py-2 text-on-surface-variant hover:bg-[#111111] transition-colors font-body-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">download</span> Export
+                </button>
+</div>
+</div>
+<!-- Alert Feed Container -->
+<div class="bg-[#0a0a0b] border border-[#2d2d30] rounded-DEFAULT overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable border-b border-[#2d2d30] bg-[#111111] font-title-sm text-body-sm text-on-surface-variant">
+<div class="col-span-2">TIMESTAMP</div>
+<div class="col-span-3">ENDPOINT</div>
+<div class="col-span-2">RISK SCORE</div>
+<div class="col-span-3">FLAGGED PROCESS</div>
+<div class="col-span-2">ACTION</div>
+</div>
+<!-- Alert Rows -->
+<div class="flex flex-col">
+<!-- Row 1: Critical -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable data-row active items-center">
+<div class="col-span-2 font-code-sm text-code-sm text-on-surface">14:22:05</div>
+<div class="col-span-3 flex items-center gap-2 font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">laptop_windows</span>
+                        FIN-WKST-04
+                    </div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-error-container/20 border border-error-container text-error font-code-xs text-code-xs">
+<span class="status-dot bg-error"></span> 88 - CRITICAL
+                        </span>
+</div>
+<div class="col-span-3 font-code-sm text-code-sm text-error">crypt-svc.exe</div>
+<div class="col-span-2 font-title-sm text-code-xs font-bold text-error tracking-wider uppercase">NETWORK ISOLATED</div>
+</div>
+<!-- Row 2: Medium -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable data-row items-center border-l-[3px] border-transparent pl-[9px]">
+<div class="col-span-2 font-code-sm text-code-sm text-on-surface-variant">14:18:33</div>
+<div class="col-span-3 flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">laptop_windows</span>
+                        HR-DESK-12
+                    </div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-primary-container/10 border border-primary-container/30 text-primary-container font-code-xs text-code-xs">
+<span class="status-dot bg-primary-container"></span> 45 - MEDIUM
+                        </span>
+</div>
+<div class="col-span-3 font-code-sm text-code-sm text-on-surface-variant">powershell.exe -enc...</div>
+<div class="col-span-2 font-title-sm text-code-xs text-primary-container tracking-wider uppercase">PROCESS KILLED</div>
+</div>
+<!-- Row 3: Critical -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable data-row items-center border-l-[3px] border-transparent pl-[9px]">
+<div class="col-span-2 font-code-sm text-code-sm text-on-surface-variant">13:55:12</div>
+<div class="col-span-3 flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">dns</span>
+                        DB-PROD-01
+                    </div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-error-container/20 border border-error-container text-error font-code-xs text-code-xs">
+<span class="status-dot bg-error"></span> 92 - CRITICAL
+                        </span>
+</div>
+<div class="col-span-3 font-code-sm text-code-sm text-error">vssadmin.exe delete...</div>
+<div class="col-span-2 font-title-sm text-code-xs font-bold text-error tracking-wider uppercase">SYSTEM HALT</div>
+</div>
+<!-- Row 4: Low -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable data-row items-center border-l-[3px] border-transparent pl-[9px]">
+<div class="col-span-2 font-code-sm text-code-sm text-on-surface-variant">13:40:01</div>
+<div class="col-span-3 flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">laptop_windows</span>
+                        MKT-WKST-09
+                    </div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-secondary-container/10 border border-secondary-container/30 text-secondary font-code-xs text-code-xs">
+<span class="status-dot bg-secondary"></span> 15 - LOW
+                        </span>
+</div>
+<div class="col-span-3 font-code-sm text-code-sm text-on-surface-variant">chrome.exe</div>
+<div class="col-span-2 font-title-sm text-code-xs text-secondary tracking-wider uppercase">LOGGED</div>
+</div>
+<!-- Row 5: Medium -->
+<div class="grid grid-cols-12 gap-gutter p-density-comfortable data-row items-center border-l-[3px] border-transparent pl-[9px]">
+<div class="col-span-2 font-code-sm text-code-sm text-on-surface-variant">13:12:45</div>
+<div class="col-span-3 flex items-center gap-2 font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">laptop_windows</span>
+                        ENG-LAP-22
+                    </div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-primary-container/10 border border-primary-container/30 text-primary-container font-code-xs text-code-xs">
+<span class="status-dot bg-primary-container"></span> 55 - HIGH
+                        </span>
+</div>
+<div class="col-span-3 font-code-sm text-code-sm text-on-surface-variant">cmd.exe /c start...</div>
+<div class="col-span-2 font-title-sm text-code-xs text-primary-container tracking-wider uppercase">PROCESS KILLED</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,99 @@
+# ==============================================================================
+# RansomShield .gitignore - Production Grade Security & Data Leak Prevention
+# ==============================================================================
+
+# --- Python & Environment ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets (Prevent credential leaks)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.secret
+
+# --- Memory Dumps & Forensic Artifacts (Data Leak Prevention) ---
+*.dmp
+*.dump
+*.raw
+test_dump.dmp
+backend/data/memory_dumps/*
+!backend/data/memory_dumps/.gitkeep
+
+# --- Databases & Persistent Stores ---
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backend/data/ransomshield.db
+
+# --- Generated Reports & Evidence Logs ---
+backend/data/reports/*
+!backend/data/reports/.gitkeep
+
+# --- Sandboxes & Scratch Test Data ---
+scratch/*
+!scratch/.gitkeep
+backend/data/test_sandbox/*
+!backend/data/test_sandbox/.gitkeep
+
+# --- Large Binary Presentation Templates ---
+Luxury Consulting Tool Presentation.pptx
+
+# --- OS & Editor Artifacts ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.bak
+*.tmp
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.agents/
+
+# Logs
+*.log
+logs/

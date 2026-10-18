@@ -1,0 +1,101 @@
+{
+  "experiment_id": "exp_1791215798",
+  "timestamp": "2026-10-05T15:56:38.247972",
+  "repetitions": 3,
+  "zero_fabrication_validated": true,
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)]",
+    "fastapi_version": "0.141.1",
+    "psutil_version": "7.2.2",
+    "watchdog_version": "4.0.0",
+    "yara_version": "4.5.4",
+    "scikit_learn_version": "1.9.0"
+  },
+  "hardware": {
+    "cpu": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "logical_cores": 16
+  },
+  "baseline_metrics": [
+    {
+      "Baseline": "B1",
+      "Name": "PROCESS ONLY",
+      "Precision": 1.0,
+      "Recall": 0.6,
+      "F1_Score": 0.75,
+      "FPR": 0.0,
+      "Latency_ms": 150.86,
+      "CPU_Overhead_Pct": 1.2,
+      "RAM_Overhead_MB": 99.16,
+      "TP": 3,
+      "FP": 0,
+      "TN": 5,
+      "FN": 2,
+      "F1_StdDev": 0.0
+    },
+    {
+      "Baseline": "B2",
+      "Name": "PROCESS + SYSMON",
+      "Precision": 1.0,
+      "Recall": 1.0,
+      "F1_Score": 1.0,
+      "FPR": 0.0,
+      "Latency_ms": 75.87,
+      "CPU_Overhead_Pct": 2.4,
+      "RAM_Overhead_MB": 99.16,
+      "TP": 5,
+      "FP": 0,
+      "TN": 5,
+      "FN": 0,
+      "F1_StdDev": 0.0
+    },
+    {
+      "Baseline": "B3",
+      "Name": "PROCESS + SYSMON + YARA",
+      "Precision": 1.0,
+      "Recall": 1.0,
+      "F1_Score": 1.0,
+      "FPR": 0.0,
+      "Latency_ms": 50.8,
+      "CPU_Overhead_Pct": 3.6,
+      "RAM_Overhead_MB": 99.14,
+      "TP": 5,
+      "FP": 0,
+      "TN": 5,
+      "FN": 0,
+      "F1_StdDev": 0.0
+    },
+    {
+      "Baseline": "B4",
+      "Name": "PROCESS + SYSMON + YARA + MEMORY",
+      "Precision": 1.0,
+      "Recall": 1.0,
+      "F1_Score": 1.0,
+      "FPR": 0.0,
+      "Latency_ms": 38.37,
+      "CPU_Overhead_Pct": 4.8,
+      "RAM_Overhead_MB": 99.14,
+      "TP": 5,
+      "FP": 0,
+      "TN": 5,
+      "FN": 0,
+      "F1_StdDev": 0.0
+    },
+    {
+      "Baseline": "B5",
+      "Name": "FULL RANSOMSHIELD",
+      "Precision": 1.0,
+      "Recall": 1.0,
+      "F1_Score": 1.0,
+      "FPR": 0.0,
+      "Latency_ms": 25.77,
+      "CPU_Overhead_Pct": 7.2,
+      "RAM_Overhead_MB": 99.14,
+      "TP": 5,
+      "FP": 0,
+      "TN": 5,
+      "FN": 0,
+      "F1_StdDev": 0.0
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Containment Log - RansomShield</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1c2b3c",
+                        "tertiary-container": "#ff5451",
+                        "tertiary": "#ffb3ad",
+                        "surface-tint": "#ffb5a0",
+                        "on-surface-variant": "#e4beb4",
+                        "surface": "#051424",
+                        "on-surface": "#d4e4fa",
+                        "inverse-on-surface": "#233143",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#5c0008",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "on-background": "#d4e4fa",
+                        "on-primary-container": "#541200",
+                        "on-secondary-container": "#004119",
+                        "on-primary-fixed-variant": "#862200",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#d4e4fa",
+                        "on-secondary": "#003915",
+                        "surface-container-highest": "#273647",
+                        "primary": "#ffb5a0",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "surface-bright": "#2c3a4c",
+                        "secondary-fixed": "#6bff8f",
+                        "on-secondary-fixed-variant": "#005321",
+                        "secondary-fixed-dim": "#4ae176",
+                        "on-error": "#690005",
+                        "outline": "#ab8980",
+                        "inverse-primary": "#b02f00",
+                        "outline-variant": "#5b4039",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#0d1c2d",
+                        "primary-container": "#ff5722",
+                        "on-primary-fixed": "#3b0900",
+                        "on-tertiary-fixed": "#410004",
+                        "primary-fixed-dim": "#ffb5a0",
+                        "surface-dim": "#051424",
+                        "background": "#051424",
+                        "on-primary": "#5f1500",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#00b954",
+                        "secondary": "#4ae176",
+                        "primary-fixed": "#ffdbd1",
+                        "surface-container": "#122131",
+                        "surface-container-lowest": "#010f1f",
+                        "on-tertiary": "#68000a",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-variant": "#273647",
+                        
+                        "card-bg": "#161618",
+                        "card-border": "#3f3f46",
+                        "canvas-bg": "#0a0a0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "density-compact": "4px",
+                        "density-comfortable": "12px",
+                        "unit": "4px",
+                        "margin-page": "24px",
+                        "card-padding": "16px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "code-xs": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "code-xs": ["10px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.canvas-bg');
+            color: theme('colors.on-surface');
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased overflow-x-hidden flex bg-[#0a0a0b]">
+<!-- SideNavBar -->
+<aside class="hidden md:flex bg-[#0a0a0b] fixed left-0 top-0 h-full w-64 border-r border-[#3f3f46] flex-col py-margin-page z-40">
+<div class="px-margin-page mb-8">
+<div class="flex items-center gap-3">
+<img alt="RansomShield System Logo" class="w-8 h-8 object-contain" data-alt="A minimalist, tech-focused logo icon for a cybersecurity system, featuring a highly stylized, glowing orange and green shield motif against a dark gray background. The style is sharp, precise, and corporate modern, reflecting a Midnight SOC aesthetic." src="https://lh3.googleusercontent.com/aida/AP1WRLvvlqAF1d0hgyUfxYLHTYyPbgi3lwwbb6hMyajwG0kJgaWheJZkrqa9nf8nazE63YXbqpC6Wy6xrsgUpT3Up4fHk4dN32NAJpbsE2kRIC4p45XXhAKw_xZO7Gfns9EHt-XDqP0wAB36sXp8Of45SvCeDPHY3O_DmpIN-UnFULu0lZecQhMZwYz-APLWGZCq8mF3b9LBkRpq2cSdtiNsijzsZRtK7gEb9VYwKDbG5WhsHtjR7wgAZRfM1KE"/>
+<div>
+<h1 class="text-title-sm font-headline-md text-primary tracking-tight">RansomShield</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">v2.4.0 Stable</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-4 mt-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">warning</span>
+                Alerts
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">devices</span>
+                Endpoints
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold border-l-4 border-primary bg-[#1c1c1f] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security_update_good</span>
+                Containment Log
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 scale-95 duration-100 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto px-4 flex flex-col gap-1 pt-6 border-t border-[#3f3f46]/30">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-[#1c1c1f] transition-colors duration-200 font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="hidden md:flex bg-[#0a0a0b] fixed top-0 right-0 w-[calc(100%-16rem)] z-50 border-b border-[#3f3f46] flex justify-between items-center h-16 px-margin-page">
+<div class="flex items-center">
+<!-- Search on left -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-[#0a0a0b] border border-[#3f3f46] focus:border-primary focus:ring-0 text-on-surface text-body-sm pl-10 pr-3 py-1.5 rounded-md transition-colors placeholder:text-on-surface-variant/50" placeholder="Search logs, endpoints..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-[#0a0a0b]"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 relative">
+<span class="material-symbols-outlined">shield_with_heart</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 relative">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-margin-page mt-16 md:mt-16 w-full max-w-7xl mx-auto">
+<div class="mb-6 flex justify-between items-end">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-1">Containment Log</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Automated and manual endpoint isolation records.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-[#3f3f46] bg-transparent text-on-surface hover:bg-[#1c1c1f] rounded text-body-sm font-title-sm transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">download</span> Export CSV
+                    </button>
+<button class="px-3 py-1.5 border border-[#3f3f46] bg-transparent text-on-surface hover:bg-[#1c1c1f] rounded text-body-sm font-title-sm transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                    </button>
+</div>
+</div>
+<!-- Data Table Card -->
+<div class="bg-[#161618] border border-[#3f3f46] rounded-lg overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-[#3f3f46] bg-[#161618]">
+<th class="py-3 px-4 font-title-sm text-body-sm text-on-surface-variant whitespace-nowrap">Time (UTC)</th>
+<th class="py-3 px-4 font-title-sm text-body-sm text-on-surface-variant whitespace-nowrap">Endpoint</th>
+<th class="py-3 px-4 font-title-sm text-body-sm text-on-surface-variant">Action Taken</th>
+<th class="py-3 px-4 font-title-sm text-body-sm text-on-surface-variant">Trigger Reason</th>
+<th class="py-3 px-4 font-title-sm text-body-sm text-on-surface-variant text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-code-sm text-code-sm text-on-surface">
+<!-- Row 1 (Active/Selected style) -->
+<tr class="border-b border-[#3f3f46] hover:bg-[#1c1c1f] transition-colors relative">
+<td class="py-2.5 px-4 whitespace-nowrap border-l-4 border-primary">2023-10-24 09:15:30</td>
+<td class="py-2.5 px-4 font-code-sm text-primary">FIN-WKST-04</td>
+<td class="py-2.5 px-4">Endpoint Isolation</td>
+<td class="py-2.5 px-4 text-on-surface-variant truncate max-w-xs">Entropy spike &gt; 7.5</td>
+<td class="py-2.5 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-sm"></span>
+                                        Success
+                                    </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-[#3f3f46] hover:bg-[#1c1c1f] transition-colors">
+<td class="py-2.5 px-4 whitespace-nowrap border-l-4 border-transparent">2023-10-24 08:42:12</td>
+<td class="py-2.5 px-4 font-code-sm">DEV-SRV-09</td>
+<td class="py-2.5 px-4">Process Terminated</td>
+<td class="py-2.5 px-4 text-on-surface-variant truncate max-w-xs">Unauthorized shadow copy deletion</td>
+<td class="py-2.5 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-sm"></span>
+                                        Success
+                                    </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-[#3f3f46] hover:bg-[#1c1c1f] transition-colors">
+<td class="py-2.5 px-4 whitespace-nowrap border-l-4 border-transparent">2023-10-24 08:15:05</td>
+<td class="py-2.5 px-4 font-code-sm">MKT-WKST-22</td>
+<td class="py-2.5 px-4">Blocked IP</td>
+<td class="py-2.5 px-4 text-on-surface-variant truncate max-w-xs">C2 Beaconing Pattern Detected</td>
+<td class="py-2.5 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 text-primary-container">
+<span class="w-1.5 h-1.5 bg-primary-container rounded-sm"></span>
+                                        Pending
+                                    </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="border-b border-[#3f3f46] hover:bg-[#1c1c1f] transition-colors bg-[#1c1c1f]/30">
+<td class="py-2.5 px-4 whitespace-nowrap border-l-4 border-transparent">2023-10-24 07:30:00</td>
+<td class="py-2.5 px-4 font-code-sm">HR-LTP-55</td>
+<td class="py-2.5 px-4 text-error">Account Suspended</td>
+<td class="py-2.5 px-4 text-on-surface-variant truncate max-w-xs">Multiple Failed Logins (Anomalous Geo)</td>
+<td class="py-2.5 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 text-on-surface-variant">
+<span class="w-1.5 h-1.5 bg-on-surface-variant rounded-sm"></span>
+                                        Override
+                                    </span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-[#1c1c1f] transition-colors">
+<td class="py-2.5 px-4 whitespace-nowrap border-l-4 border-transparent">2023-10-24 06:12:44</td>
+<td class="py-2.5 px-4 font-code-sm">IT-JMP-01</td>
+<td class="py-2.5 px-4">Endpoint Isolation</td>
+<td class="py-2.5 px-4 text-on-surface-variant truncate max-w-xs">Ransomware Extension Match (.cry)</td>
+<td class="py-2.5 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 text-secondary">
+<span class="w-1.5 h-1.5 bg-secondary rounded-sm"></span>
+                                        Success
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-[#3f3f46] bg-[#1c1c1f] flex justify-between items-center text-body-sm text-on-surface-variant">
+<span>Showing 1 to 5 of 124 entries</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-[#2d2d30] transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="px-2 py-1 rounded bg-[#2d2d30] text-on-surface font-title-sm">1</button>
+<button class="px-2 py-1 rounded hover:bg-[#2d2d30] transition-colors">2</button>
+<button class="px-2 py-1 rounded hover:bg-[#2d2d30] transition-colors">3</button>
+<button class="p-1 rounded hover:bg-[#2d2d30] transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
